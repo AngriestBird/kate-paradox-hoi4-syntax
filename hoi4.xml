@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<!--
+    Hearts of Iron IV / Paradox Script Syntax Highlighting for Kate
+    KSyntaxHighlighting XML Definition
+
+    Installation:
+      Linux:   ~/.local/share/org.kde.syntax-highlighting/syntax/hoi4.xml
+      Windows: %USERPROFILE%\AppData\Local\org.kde.syntax-highlighting\syntax\hoi4.xml
+      macOS:   ~/Library/Application Support/org.kde.syntax-highlighting/syntax/hoi4.xml
+
+    Then restart Kate. Set the language via the bottom-right dropdown or
+    Tools > Highlighting > Scripts > HOI4 Script.
+
+    SPDX-License-Identifier: MIT
+-->
+<language
+    name="HOI4 Script"
+    version="1"
+    kateversion="5.0"
+    section="Scripts"
+    extensions="*.txt;*.gui;*.gfx;*.asset;*.sfx;*.settings;*.mod"
+    mimetype=""
+    casesensitive="0"
+    author="Generated for HOI4 modding"
+    license="MIT"
+>
+  <highlighting>
+
+    <list name="booleans">
+      <item>yes</item>
+      <item>no</item>
+    </list>
+
+    <!-- Common scope keywords -->
+    <list name="scopes">
+      <item>ROOT</item>
+      <item>THIS</item>
+      <item>FROM</item>
+      <item>PREV</item>
+      <item>OVERLORD</item>
+      <item>FACTION_LEADER</item>
+      <item>CAPITAL</item>
+      <item>OWNER</item>
+      <item>CONTROLLER</item>
+    </list>
+
+    <!-- Effects -->
+    <list name="effects">
+      <item>add_ideas</item>
+      <item>remove_ideas</item>
+      <item>add_equipment_to_stockpile</item>
+      <item>add_manpower</item>
+      <item>add_political_power</item>
+      <item>add_stability</item>
+      <item>add_war_support</item>
+      <item>add_opinion_modifier</item>
+      <item>add_relation_modifier</item>
+      <item>add_state_claim</item>
+      <item>add_state_core</item>
+      <item>add_tech_bonus</item>
+      <item>add_timed_idea</item>
+      <item>add_to_faction</item>
+      <item>add_to_variable</item>
+      <item>annex_country</item>
+      <item>capital_scope</item>
+      <item>clamp_variable</item>
+      <item>country_event</item>
+      <item>create_country_leader</item>
+      <item>create_faction</item>
+      <item>custom_effect_tooltip</item>
+      <item>declare_war_on</item>
+      <item>division_template</item>
+      <item>effect_tooltip</item>
+      <item>every_country</item>
+      <item>every_owned_state</item>
+      <item>every_state</item>
+      <item>hidden_effect</item>
+      <item>if</item>
+      <item>else_if</item>
+      <item>else</item>
+      <item>load_focus_tree</item>
+      <item>mark_focus_tree_layout_dirty</item>
+      <item>news_event</item>
+      <item>random_country</item>
+      <item>random_list</item>
+      <item>random_owned_state</item>
+      <item>release_autonomy</item>
+      <item>remove_from_faction</item>
+      <item>remove_opinion_modifier</item>
+      <item>remove_relation_modifier</item>
+      <item>set_autonomy</item>
+      <item>set_capital</item>
+      <item>set_country_flag</item>
+      <item>set_global_flag</item>
+      <item>set_politics</item>
+      <item>set_popularities</item>
+      <item>set_state_flag</item>
+      <item>set_technology</item>
+      <item>set_variable</item>
+      <item>start_civil_war</item>
+      <item>state_event</item>
+      <item>transfer_state</item>
+      <item>unlock_decision_tooltip</item>
+      <item>white_peace</item>
+    </list>
+
+    <!-- Triggers -->
+    <list name="triggers">
+      <item>always</item>
+      <item>AND</item>
+      <item>OR</item>
+      <item>NOT</item>
+      <item>can_declare_war_on</item>
+      <item>check_variable</item>
+      <item>controls_state</item>
+      <item>date</item>
+      <item>enemies_strength_ratio</item>
+      <item>focus_progress</item>
+      <item>has_capitulated</item>
+      <item>has_country_flag</item>
+      <item>has_dlc</item>
+      <item>has_equipment</item>
+      <item>has_global_flag</item>
+      <item>has_government</item>
+      <item>has_idea</item>
+      <item>has_non_aggression_pact_with</item>
+      <item>has_opinion</item>
+      <item>has_political_power</item>
+      <item>has_stability</item>
+      <item>has_state_flag</item>
+      <item>has_tech</item>
+      <item>has_trade_embargo_with_us</item>
+      <item>has_war</item>
+      <item>has_war_support</item>
+      <item>has_war_with</item>
+      <item>is_ally_with</item>
+      <item>is_faction_leader</item>
+      <item>is_fully_controlled_by</item>
+      <item>is_in_faction</item>
+      <item>is_in_faction_with</item>
+      <item>is_neighbor_of</item>
+      <item>is_owned_and_controlled_by</item>
+      <item>is_puppet</item>
+      <item>is_puppet_of</item>
+      <item>is_subject</item>
+      <item>is_subject_of</item>
+      <item>manpower</item>
+      <item>num_divisions</item>
+      <item>original_tag</item>
+      <item>owns_state</item>
+      <item>stability</item>
+      <item>strength_ratio</item>
+      <item>tag</item>
+      <item>threat</item>
+    </list>
+
+    <!-- Common block/field keywords -->
+    <list name="keywords">
+      <item>focus</item>
+      <item>id</item>
+      <item>icon</item>
+      <item>cost</item>
+      <item>x</item>
+      <item>y</item>
+      <item>relative_position_id</item>
+      <item>prerequisite</item>
+      <item>mutually_exclusive</item>
+      <item>bypass</item>
+      <item>available</item>
+      <item>cancel_if_invalid</item>
+      <item>continue_if_invalid</item>
+      <item>completion_reward</item>
+      <item>search_filters</item>
+      <item>ai_will_do</item>
+      <item>will_lead_to_war_with</item>
+      <item>select_effect</item>
+      <item>name</item>
+      <item>desc</item>
+      <item>picture</item>
+      <item>allowed</item>
+      <item>allowed_civil_war</item>
+      <item>cancel</item>
+      <item>modifier</item>
+      <item>targeted_modifier</item>
+      <item>rule</item>
+      <item>research_bonus</item>
+      <item>equipment_bonus</item>
+      <item>traits</item>
+      <item>factor</item>
+      <item>add</item>
+      <item>base</item>
+      <item>value</item>
+      <item>token</item>
+      <item>limit</item>
+      <item>chance</item>
+      <item>days</item>
+      <item>hours</item>
+      <item>random</item>
+      <item>mean_time_to_happen</item>
+      <item>trigger</item>
+      <item>option</item>
+      <item>title</item>
+      <item>fire_only_once</item>
+      <item>is_triggered_only</item>
+      <item>immediate</item>
+      <item>hidden</item>
+      <item>major</item>
+      <item>province</item>
+      <item>state</item>
+      <item>color</item>
+      <item>colors</item>
+      <item>frames</item>
+      <item>ribbon</item>
+      <item>category</item>
+      <item>path</item>
+      <item>research_cost</item>
+      <item>start_year</item>
+      <item>folder</item>
+      <item>enable</item>
+      <item>on_research_complete</item>
+      <item>ai_research_weights</item>
+      <item>dependencies</item>
+      <item>sub_technologies</item>
+      <item>doctrine</item>
+      <item>type</item>
+      <item>parent</item>
+      <item>gfx_type</item>
+      <item>group</item>
+      <item>division_types</item>
+      <item>position</item>
+      <item>map_icon_category</item>
+      <item>priority</item>
+      <item>active</item>
+      <item>default</item>
+    </list>
+
+    <contexts>
+
+      <context name="Normal" attribute="Normal Text" lineEndContext="#stay">
+        <!-- Comments -->
+        <DetectChar attribute="Comment" context="Comment" char="#"/>
+
+        <!-- Strings -->
+        <DetectChar attribute="String" context="String" char="&quot;"/>
+
+        <!-- Block delimiters -->
+        <DetectChar attribute="Operator" context="#stay" char="{"/>
+        <DetectChar attribute="Operator" context="#stay" char="}"/>
+
+        <!-- Operators / comparators -->
+        <AnyChar attribute="Operator" context="#stay" String="=&lt;&gt;!"/>
+
+        <!-- Numbers (integers, floats, negative) -->
+        <RegExpr attribute="Number" context="#stay" String="-?[0-9]+(\.[0-9]+)?"/>
+
+        <!-- Booleans -->
+        <keyword attribute="Boolean" context="#stay" String="booleans"/>
+
+        <!-- Scope keywords -->
+        <keyword attribute="Scope" context="#stay" String="scopes"/>
+
+        <!-- Effects -->
+        <keyword attribute="Effect" context="#stay" String="effects"/>
+
+        <!-- Triggers -->
+        <keyword attribute="Trigger" context="#stay" String="triggers"/>
+
+        <!-- General keywords / field names -->
+        <keyword attribute="Keyword" context="#stay" String="keywords"/>
+
+        <!-- Country tags (2-3 uppercase letters) -->
+        <RegExpr attribute="Variable" context="#stay" String="\b[A-Z][A-Z0-9]{1,2}\b"/>
+      </context>
+
+      <context name="Comment" attribute="Comment" lineEndContext="#pop"/>
+
+      <context name="String" attribute="String" lineEndContext="#pop">
+        <DetectChar attribute="String" context="#pop" char="&quot;"/>
+      </context>
+
+    </contexts>
+
+    <itemDatas>
+      <itemData name="Normal Text"  defStyleNum="dsNormal"   spellChecking="false"/>
+      <itemData name="Comment"      defStyleNum="dsComment"  spellChecking="false"/>
+      <itemData name="String"       defStyleNum="dsString"   spellChecking="false"/>
+      <itemData name="Keyword"      defStyleNum="dsKeyword"  spellChecking="false"/>
+      <itemData name="Effect"       defStyleNum="dsFunction" spellChecking="false"/>
+      <itemData name="Trigger"      defStyleNum="dsAttribute" spellChecking="false"/>
+      <itemData name="Scope"        defStyleNum="dsBuiltIn"  spellChecking="false"/>
+      <itemData name="Boolean"      defStyleNum="dsConstant" spellChecking="false"/>
+      <itemData name="Number"       defStyleNum="dsFloat"    spellChecking="false"/>
+      <itemData name="Operator"     defStyleNum="dsOperator" spellChecking="false"/>
+      <itemData name="Variable"     defStyleNum="dsVariable" spellChecking="false"/>
+    </itemDatas>
+
+  </highlighting>
+
+  <general>
+    <comments>
+      <comment name="singleLine" start="#"/>
+    </comments>
+    <keywords casesensitive="0"/>
+  </general>
+
+</language>
