@@ -2090,6 +2090,12 @@
 
         <!-- Country tags (2-3 uppercase letters/digits), checked last -->
         <RegExpr attribute="Variable" context="#stay" String="\b[A-Z][A-Z0-9]{1,2}\b"/>
+
+        <!-- Leftover bareword values: flag names, idea/event-target tokens and
+             other unquoted identifiers used on the right of `=`. The negative
+             lookahead skips block/field keys (anything followed by `=`), so
+             unknown keys stay Normal Text and only values pick up colour. -->
+        <RegExpr attribute="Value" context="#stay" String="\b[A-Za-z_][A-Za-z0-9_]*\b(?!\s*=)"/>
       </context>
 
       <context name="Comment" attribute="Comment" lineEndContext="#pop"/>
@@ -2113,6 +2119,7 @@
       <itemData name="Number"       defStyleNum="dsFloat"    spellChecking="false"/>
       <itemData name="Operator"     defStyleNum="dsOperator" spellChecking="false"/>
       <itemData name="Variable"     defStyleNum="dsVariable" spellChecking="false"/>
+      <itemData name="Value"        defStyleNum="dsOthers"   spellChecking="false"/>
     </itemDatas>
 
   </highlighting>
