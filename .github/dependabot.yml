@@ -1,0 +1,11 @@
+version: 2
+
+# Keeps the SHA-pinned actions in .github/workflows/ up to date. Dependabot
+# bumps the commit SHA and the trailing version comment together.
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    assignees:
+      - AngriestBird

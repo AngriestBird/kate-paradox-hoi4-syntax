@@ -1,0 +1,60 @@
+name: Release
+
+# Builds .zip and .tar.gz bundles of the syntax files. A version tag (e.g.
+# v1.0.0) also publishes them as a GitHub Release; manual runs just upload the
+# bundles as build artifacts for testing.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Validate syntax files against the KSyntaxHighlighting schema
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq libxml2-utils
+          curl -fsSL \
+            https://invent.kde.org/frameworks/syntax-highlighting/-/raw/master/data/schema/language.xsd \
+            -o language.xsd
+          for f in hoi4.xml hoi4-localisation.xml hoi4-lua.xml; do
+            # Schema doesn't model the DOCTYPE/DTD line, so strip it first.
+            sed '/<!DOCTYPE/d' "$f" > "check-$f"
+            xmllint --noout --schema language.xsd "check-$f"
+            echo "validated $f"
+          done
+
+      - name: Build archives
+        run: |
+          VERSION="${GITHUB_REF_NAME:-dev}"
+          PKG="hoi4-kate-syntax-${VERSION}"
+          mkdir -p "dist/${PKG}"
+          cp hoi4.xml hoi4-localisation.xml hoi4-lua.xml \
+             install.sh install.ps1 README.md LICENSE "dist/${PKG}/"
+          chmod +x "dist/${PKG}/install.sh"
+          ( cd dist && zip -rq "${PKG}.zip" "${PKG}" && tar -czf "${PKG}.tar.gz" "${PKG}" )
+          ls -la dist
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: hoi4-kate-syntax
+          path: |
+            dist/*.zip
+            dist/*.tar.gz
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
+        with:
+          files: |
+            dist/*.zip
+            dist/*.tar.gz
+          generate_release_notes: true

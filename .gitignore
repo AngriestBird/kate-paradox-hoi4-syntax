@@ -1,0 +1,24 @@
+# Python bytecode cache (from tools/generate_syntax.py)
+__pycache__/
+*.py[cod]
+
+# Release build output and packaged bundles (produced by the Release workflow)
+dist/
+*.zip
+*.tar.gz
+
+# Schema validation artifacts. language.xsd is fetched live from KDE, never
+# committed. check-*.xml are the DOCTYPE-stripped copies the check produces.
+language.xsd
+check-*.xml
+
+# Kate editor swap & backup files
+*.kate-swp
+.*.kate-swp
+*~
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

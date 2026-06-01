@@ -1,0 +1,44 @@
+name: Validate
+
+# Validates the syntax files against KDE's live language.xsd on every push and
+# PR, so an upstream schema tightening is caught before it breaks in Kate.
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Install xmllint
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq libxml2-utils
+
+      - name: Fetch KDE's language.xsd
+        run: |
+          curl -fsSL \
+            https://invent.kde.org/frameworks/syntax-highlighting/-/raw/master/data/schema/language.xsd \
+            -o language.xsd
+
+      - name: Validate each highlighter against the schema
+        run: |
+          for f in hoi4.xml hoi4-localisation.xml hoi4-lua.xml; do
+            # Schema doesn't model the DOCTYPE/DTD line, so strip it first.
+            sed '/<!DOCTYPE/d' "$f" > "check-$f"
+            xmllint --noout --schema language.xsd "check-$f"
+            echo "validated $f"
+          done
+
+      - name: Check for duplicate keyword tokens
+        run: |
+          dupes="$(grep -hoP '(?<=<item>)[^<]+' hoi4.xml | sort | uniq -d)"
+          if [ -n "$dupes" ]; then
+            echo "Duplicate <item> tokens found (ambiguous matching):"
+            echo "$dupes"
+            exit 1
+          fi
+          echo "no duplicate tokens"
+
+      - name: Check the generator still compiles
+        run: python3 -m py_compile tools/generate_syntax.py
