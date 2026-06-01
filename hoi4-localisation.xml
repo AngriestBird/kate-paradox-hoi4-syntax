@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<!--
+    Hearts of Iron IV Localisation (.yml) Syntax Highlighting for Kate
+
+    Paradox localisation files look like YAML but are not: a language header
+    (l_english:), then `KEY:version "value"` entries whose strings embed
+    formatting markup. This definition highlights:
+      - the l_<language>: header and entry keys
+      - the :version number after each key
+      - inside strings: §color codes (§Y ... §!), [loc functions/scopes],
+        $variable$ references, £icon£ sprites, and \n escapes
+
+    Extensions are restricted to *_l_<language>.yml so this does NOT hijack
+    ordinary YAML files; only Paradox-named localisation files are matched.
+
+    Install alongside hoi4.xml in the syntax/ folder.
+
+    Localisation format and formatter reference:
+    https://hoi4.paradoxwikis.com/Localisation
+
+    SPDX-License-Identifier: MIT
+-->
+<language
+    name="HOI4 Localisation"
+    version="1"
+    kateversion="5.0"
+    section="Scripts"
+    extensions="*_l_english.yml;*_l_braz_por.yml;*_l_french.yml;*_l_german.yml;*_l_japanese.yml;*_l_korean.yml;*_l_polish.yml;*_l_russian.yml;*_l_simp_chinese.yml;*_l_spanish.yml;*_l_default.yml"
+    priority="5"
+    casesensitive="1"
+    author="Generated for HOI4 modding"
+    license="MIT"
+>
+  <highlighting>
+
+    <contexts>
+
+      <context name="Normal" attribute="Normal Text" lineEndContext="#stay">
+        <!-- Comments -->
+        <DetectChar attribute="Comment" context="Comment" char="#"/>
+
+        <!-- Language header: l_english: , l_braz_por: , ... -->
+        <RegExpr attribute="Header" context="#stay" String="^\s*l_[a-z_]+\s*:"/>
+
+        <!-- Entry key at line start, then its :version number -->
+        <RegExpr attribute="Key" context="#stay" String="^\s*[A-Za-z0-9_.\-]+"/>
+        <RegExpr attribute="Version" context="#stay" String=":[0-9]+"/>
+
+        <!-- Quoted value (may span context for embedded markup) -->
+        <DetectChar attribute="String" context="String" char="&quot;"/>
+      </context>
+
+      <context name="Comment" attribute="Comment" lineEndContext="#pop"/>
+
+      <context name="String" attribute="String" lineEndContext="#pop">
+        <!-- Color codes: §Y ... §!  (§ followed by one control char) -->
+        <RegExpr attribute="Markup" context="#stay" String="§."/>
+        <!-- Sprite icons: £icon£ or £icon|22£ -->
+        <RegExpr attribute="Markup" context="#stay" String="£[A-Za-z0-9_|]+£?"/>
+        <!-- Variable references: $VAR$ , $VAL|%$ -->
+        <RegExpr attribute="Variable" context="#stay" String="\$[^$&quot;]*\$"/>
+        <!-- Loc functions / nested scopes: [GetName], [?var|2] -->
+        <RegExpr attribute="Function" context="#stay" String="\[[^\]&quot;]*\]"/>
+        <!-- Escapes: \n \" -->
+        <RegExpr attribute="Markup" context="#stay" String="\\."/>
+        <DetectChar attribute="String" context="#pop" char="&quot;"/>
+      </context>
+
+    </contexts>
+
+    <itemDatas>
+      <itemData name="Normal Text" defStyleNum="dsNormal"      spellChecking="false"/>
+      <itemData name="Comment"     defStyleNum="dsComment"     spellChecking="false"/>
+      <itemData name="Header"      defStyleNum="dsKeyword"     spellChecking="false"/>
+      <itemData name="Key"         defStyleNum="dsFunction"    spellChecking="false"/>
+      <itemData name="Version"     defStyleNum="dsDecVal"      spellChecking="false"/>
+      <itemData name="String"      defStyleNum="dsString"      spellChecking="true"/>
+      <itemData name="Markup"      defStyleNum="dsSpecialChar" spellChecking="false"/>
+      <itemData name="Variable"    defStyleNum="dsVariable"    spellChecking="false"/>
+      <itemData name="Function"    defStyleNum="dsImport"      spellChecking="false"/>
+    </itemDatas>
+
+  </highlighting>
+
+  <general>
+    <comments>
+      <comment name="singleLine" start="#"/>
+    </comments>
+  </general>
+
+</language>

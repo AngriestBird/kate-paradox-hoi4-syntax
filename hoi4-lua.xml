@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<!--
+    Hearts of Iron IV Lua Syntax Highlighting for Kate
+
+    HOI4 .lua files (defines, AI helpers, tweaks) are just Lua, so this reuses
+    Kate's built-in Lua highlighting via <IncludeRules context="##Lua"> and
+    adds the engine naming on top: C-prefixed classes (CArray, CCountry) and
+    N-prefixed define namespaces (NDefines, NMilitary, NGraphics).
+
+    Install alongside hoi4.xml in the syntax/ folder. Needs the standard Lua
+    definition, which always ships with KSyntaxHighlighting.
+
+    SPDX-License-Identifier: MIT
+-->
+<language
+    name="HOI4 Lua"
+    version="1"
+    kateversion="5.0"
+    section="Scripts"
+    extensions="*.lua"
+    style="lua"
+    indenter="lua"
+    priority="5"
+    casesensitive="1"
+    author="Generated for HOI4 modding"
+    license="MIT"
+>
+  <highlighting>
+
+    <!-- HOI4 engine globals that don't follow the C/N prefix convention -->
+    <list name="hoi4_globals">
+      <item>Diplomacy</item>
+      <item>Utils</item>
+      <item>tweaks</item>
+    </list>
+
+    <contexts>
+      <!-- Our rules run first so engine identifiers win; the IncludeRules
+           pulls in all of Lua's own handling (comments, strings, keywords).
+           Comments/strings are entered through Lua's rules before their inner
+           text is rescanned, so the engine regex never fires inside them. -->
+      <context name="Normal" attribute="Normal Text" lineEndContext="#stay">
+        <RegExpr attribute="HOI4 Engine" context="#stay" String="\b[CN][A-Z][A-Za-z0-9_]*\b"/>
+        <keyword attribute="HOI4 Engine" context="#stay" String="hoi4_globals"/>
+        <IncludeRules context="##Lua" includeAttrib="true"/>
+      </context>
+    </contexts>
+
+    <itemDatas>
+      <itemData name="Normal Text" defStyleNum="dsNormal"  spellChecking="false"/>
+      <itemData name="HOI4 Engine" defStyleNum="dsBuiltIn" spellChecking="false"/>
+    </itemDatas>
+
+  </highlighting>
+</language>
