@@ -27,6 +27,7 @@ If something isn't highlighted it's probably a newer or DLC command. The wiki li
 Grab the `.zip` or `.tar.gz` from [Releases](../../releases), unpack it, and run the installer.
 
 **Linux/MacOS**
+
 ```sh
 tar -xzf hoi4-kate-syntax-*.tar.gz
 cd hoi4-kate-syntax-*/
@@ -34,6 +35,7 @@ cd hoi4-kate-syntax-*/
 ```
 
 **Windows**
+
 ```powershell
 Expand-Archive hoi4-kate-syntax-*.zip -DestinationPath .
 cd hoi4-kate-syntax-*
@@ -42,10 +44,25 @@ cd hoi4-kate-syntax-*
 
 Restart Kate and you're done.
 
+### Flatpak and Snap
+
+The default installer path is for native installs. For a sandboxed KDE editor,
+pass its syntax directory explicitly:
+
+```sh
+# Kate Flatpak
+./install.sh --dest "$HOME/.var/app/org.kde.kate/data/org.kde.syntax-highlighting/syntax"
+
+# Kate Snap
+./install.sh --dest "$HOME/snap/kate/current/.local/share/org.kde.syntax-highlighting/syntax"
+```
+
+Replace `org.kde.kate` or `kate` with the package name for another KDE editor.
+
 ### From source
 
 ```sh
-git clone <repo-url>
+git clone https://github.com/AngriestBird/kate-paradox-hoi4-syntax.git
 cd kate-paradox-hoi4-syntax
 ./install.sh
 ```
@@ -57,14 +74,19 @@ Use `.\install.ps1` on Windows.
 Copy the three `.xml` files into your syntax folder.
 
 **Linux**
+
 ```plaintext
 ~/.local/share/org.kde.syntax-highlighting/syntax/
 ```
+
 **MacOS**
+
 ```plaintext
 ~/Library/Application Support/org.kde.syntax-highlighting/syntax/
 ```
+
 **Windows**
+
 ```plaintext
 %USERPROFILE%\AppData\Local\org.kde.syntax-highlighting\syntax\
 ```

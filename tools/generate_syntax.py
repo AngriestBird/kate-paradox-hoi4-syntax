@@ -17,6 +17,7 @@ import argparse
 import os
 import re
 import sys
+import tempfile
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HOI4_XML = os.path.join(REPO, "hoi4.xml")
@@ -49,19 +50,24 @@ def find_hoi4(explicit):
 def extract(md_path):
     """Return the sorted set of documented token names from a doc .md file."""
     tokens = set()
-    with open(md_path, encoding="utf-8") as fh:
-        for line in fh:
-            m = ITEM_RE.match(line)
-            if m:
-                tokens.add(m.group(1))
+    try:
+        with open(md_path, encoding="utf-8") as fh:
+            for line in fh:
+                m = ITEM_RE.match(line)
+                if m:
+                    tokens.add(m.group(1))
+    except OSError as exc:
+        sys.exit(f"Could not read {md_path}: {exc}")
+    if not tokens:
+        sys.exit(
+            f"No documented tokens found in {md_path}. The documentation format may have changed."
+        )
     return tokens
 
 
 def read_hand_list(xml_text, name):
     """Pull the <item> values out of a hand-maintained <list name=...>."""
-    block = re.search(
-        rf'<list name="{name}">(.*?)</list>', xml_text, re.DOTALL
-    )
+    block = re.search(rf'<list name="{name}">(.*?)</list>', xml_text, re.DOTALL)
     if not block:
         return set()
     return set(re.findall(r"<item>([^<]+)</item>", block.group(1)))
@@ -82,6 +88,20 @@ def replace_gen(xml_text, name, rendered):
     return pattern.sub(lambda m: m.group(1) + rendered + m.group(2), xml_text)
 
 
+def write_atomic(path, contents):
+    fd, temp_path = tempfile.mkstemp(
+        dir=os.path.dirname(path), prefix=".hoi4.xml.", text=True
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(contents)
+        os.chmod(temp_path, os.stat(path).st_mode)
+        os.replace(temp_path, path)
+    finally:
+        if os.path.exists(temp_path):
+            os.unlink(temp_path)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--hoi4", help="path to the Hearts of Iron IV install directory")
@@ -94,8 +114,11 @@ def main():
     triggers = extract(os.path.join(doc, "triggers_documentation.md"))
     modifiers = extract(os.path.join(doc, "modifiers_documentation.md"))
 
-    with open(HOI4_XML, encoding="utf-8") as fh:
-        xml_text = fh.read()
+    try:
+        with open(HOI4_XML, encoding="utf-8") as fh:
+            xml_text = fh.read()
+    except OSError as exc:
+        sys.exit(f"Could not read {HOI4_XML}: {exc}")
 
     # Tokens owned by hand-maintained lists win; a token never appears twice,
     # so keyword matching is unambiguous (first matching <keyword> rule wins).
@@ -111,8 +134,7 @@ def main():
     xml_text = replace_gen(xml_text, "triggers", render_list("triggers", triggers))
     xml_text = replace_gen(xml_text, "modifiers", render_list("modifiers", modifiers))
 
-    with open(HOI4_XML, "w", encoding="utf-8") as fh:
-        fh.write(xml_text)
+    write_atomic(HOI4_XML, xml_text)
 
     print(
         f"hoi4.xml updated from {hoi4}\n"

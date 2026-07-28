@@ -15,12 +15,12 @@
 -->
 <language
     name="HOI4 Lua"
-    version="1"
+    version="2"
     kateversion="5.0"
     section="Scripts"
     extensions="*.lua"
     style="lua"
-    indenter="lua"
+    indenter="cstyle"
     priority="5"
     casesensitive="1"
     author="Generated for HOI4 modding"
