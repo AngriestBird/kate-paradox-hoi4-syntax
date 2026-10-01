@@ -3,7 +3,7 @@
 
 HOI4 dumps every effect, trigger, and modifier to Markdown files in its
 documentation/ folder. This reads those files and rewrites the GEN-marked
-<list> blocks in hoi4.xml, so you don't have to maintain ~1,900 tokens by
+<list> blocks in hoi4.xml, so you don't have to maintain ~1,800 tokens by
 hand. Re-run it after a game patch.
 
 Usage:
@@ -93,7 +93,9 @@ def write_atomic(path, contents):
         dir=os.path.dirname(path), prefix=".hoi4.xml.", text=True
     )
     try:
-        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+        # newline="\n" keeps LF endings on Windows instead of rewriting the
+        # whole file as CRLF.
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as fh:
             fh.write(contents)
         os.chmod(temp_path, os.stat(path).st_mode)
         os.replace(temp_path, path)
@@ -122,13 +124,22 @@ def main():
 
     # Tokens owned by hand-maintained lists win; a token never appears twice,
     # so keyword matching is unambiguous (first matching <keyword> rule wins).
-    reserved = set()
+    # hoi4.xml matches keywords case-insensitively, so compare lowercased.
+    taken = set()
     for hand in ("booleans", "scopes", "keywords"):
-        reserved |= read_hand_list(xml_text, hand)
+        taken |= {t.lower() for t in read_hand_list(xml_text, hand)}
 
-    effects -= reserved
-    triggers -= reserved | effects
-    modifiers -= reserved | effects | triggers
+    def claim(tokens):
+        kept = set()
+        for t in sorted(tokens):
+            if t.lower() not in taken:
+                taken.add(t.lower())
+                kept.add(t)
+        return kept
+
+    effects = claim(effects)
+    triggers = claim(triggers)
+    modifiers = claim(modifiers)
 
     xml_text = replace_gen(xml_text, "effects", render_list("effects", effects))
     xml_text = replace_gen(xml_text, "triggers", render_list("triggers", triggers))

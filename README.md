@@ -12,13 +12,22 @@ Three files, one per HOI4 file type:
 
 ## What it highlights
 
-`hoi4.xml`: comments, strings, numbers, dates, booleans, and operators, plus every effect, trigger, and modifier from the game's own `documentation/` exports (around 1,900 tokens, colored by type). Also scopes, country tags, `@variables`, inline math like `@[ base + 10 ]`, and prefixes like `var:` and `event_target:`.
+`hoi4.xml`: comments, strings, numbers, dates, booleans, and operators, plus every effect, trigger, and modifier from the game's own `documentation/` exports (around 1,800 tokens, colored by type). Also scopes, country tags, `@variables`, inline math like `@[ base + 10 ]`, and prefixes like `var:` and `event_target:`. `{ }` blocks fold.
 
 `hoi4-localisation.xml`: the `l_english:` header, keys and version numbers, and the markup inside strings (`§Y...§!` color codes, `[loc functions]`, `$variables$`, `£icons£`, `\n`).
 
 `hoi4-lua.xml`: Kate's built-in Lua highlighting plus the engine naming conventions on top (`C` classes, `N` defines).
 
 If something isn't highlighted it's probably a newer or DLC command. The wiki links at the bottom cover the rest.
+
+### File associations
+
+Kate picks a highlighter by file extension, and HOI4 uses some very generic ones:
+
+- `hoi4.xml` claims **every** `.txt` file (plus `.mod`, `.asset`, `.settings`, etc), not just the ones in a mod folder.
+- `hoi4-lua.xml` claims **every** `.lua` file and takes priority over Kate's own Lua highlighting. It's a superset of normal Lua, but `C...`/`N...` names in non-HOI4 Lua will get the engine color.
+
+If that gets in the way, switch a single file back from the dropdown at the bottom-right, change the extensions under Settings > Configure Kate > Open/Save > Modes & Filetypes, or just don't install `hoi4-lua.xml`.
 
 ## Install
 
@@ -41,6 +50,8 @@ Expand-Archive hoi4-kate-syntax-*.zip -DestinationPath .
 cd hoi4-kate-syntax-*
 .\install.ps1
 ```
+
+If PowerShell refuses to run it ("running scripts is disabled" or "not digitally signed"), run it once with `powershell -ExecutionPolicy Bypass -File .\install.ps1`.
 
 Restart Kate and you're done.
 
@@ -93,15 +104,29 @@ Copy the three `.xml` files into your syntax folder.
 
 Restart Kate. If a file doesn't pick it up on its own, set the language from the dropdown at the bottom-right, or under Tools > Highlighting > Scripts.
 
+### Uninstall
+
+Delete `hoi4.xml`, `hoi4-localisation.xml`, and `hoi4-lua.xml` from the syntax folder above (or the `--dest` folder you used) and restart Kate.
+
 ## Updating after a patch
 
-The effect, trigger, and modifier lists are generated from HOI4's own documentation, so you can refresh them when the game updates:
+The effect, trigger, and modifier lists are generated from HOI4's own documentation, so you can refresh them when the game updates. Needs Python 3, run from a clone of this repo:
 
 ```sh
 tools/generate_syntax.py --hoi4 "/path/to/Steam/steamapps/common/Hearts of Iron IV"
 ```
 
-It only rewrites the generated sections and leaves the hand-written lists and rules alone. Leave off `--hoi4` and it tries the usual Steam paths.
+On Windows: `py tools\generate_syntax.py --hoi4 "C:\Program Files (x86)\Steam\steamapps\common\Hearts of Iron IV"`.
+
+It only rewrites the generated sections and leaves the hand-written lists and rules alone. Leave off `--hoi4` and it tries the default Steam library paths on Linux, macOS, and Windows (not extra libraries or Flatpak Steam). Then re-run `install.sh`/`install.ps1` to pick up the new lists.
+
+## Development
+
+- Tests: `python3 -m unittest discover -s tests` (Python 3.10+).
+- Schema check: CI validates all three files against KDE's [`language.xsd`](https://invent.kde.org/frameworks/syntax-highlighting/-/blob/master/data/schema/language.xsd) with `xmllint` and fails on duplicate keyword tokens. See `.github/workflows/validate.yml` to run the same steps locally.
+- When you change a syntax file, bump its `version="..."` attribute. If a user has two copies of a definition, Kate loads the one with the higher version.
+- Don't hand-edit between the `BEGIN-GEN`/`END-GEN` markers in `hoi4.xml`; the generator overwrites them. Put hand-picked tokens in the `scopes` or `keywords` lists instead.
+- Releases: push a `v*` tag (e.g. `v1.1.0`) and the Release workflow builds the `.zip`/`.tar.gz` and publishes them.
 
 ## Modding reference
 

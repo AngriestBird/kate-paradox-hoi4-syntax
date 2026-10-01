@@ -6,6 +6,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -32,9 +35,10 @@ jobs:
             echo "validated $f"
           done
 
+      # hoi4.xml matches keywords case-insensitively, so FOO and foo collide.
       - name: Check for duplicate keyword tokens
         run: |
-          dupes="$(grep -hoP '(?<=<item>)[^<]+' hoi4.xml | sort | uniq -d)"
+          dupes="$(grep -hoP '(?<=<item>)[^<]+' hoi4.xml | sort -f | uniq -di)"
           if [ -n "$dupes" ]; then
             echo "Duplicate <item> tokens found (ambiguous matching):"
             echo "$dupes"

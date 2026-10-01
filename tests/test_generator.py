@@ -1,4 +1,6 @@
+import contextlib
 import importlib.util
+import io
 import stat
 import sys
 import tempfile
@@ -60,6 +62,59 @@ class GeneratorTests(unittest.TestCase):
                 generate_syntax.HOI4_XML = original_xml_path
 
             self.assertEqual(xml_path.read_text(encoding="utf-8"), original)
+
+    def test_generates_deduplicated_lists(self):
+        docs = {
+            "effects_documentation.md": (
+                "* [COUNTRY](#effects-for-scope-country)\n"
+                "* [add_ideas](#add_ideas)\n"
+                "* [if](#if)\n"
+                "* [capital](#capital)\n"
+            ),
+            "triggers_documentation.md": (
+                "* [if](#if)\n* [has_war](#has_war)\n* [Has_War](#has_war-1)\n"
+            ),
+            "modifiers_documentation.md": "* [stability_factor](#stability_factor)\n",
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            documentation = temp_path / "game" / "documentation"
+            documentation.mkdir(parents=True)
+            for name, text in docs.items():
+                (documentation / name).write_text(text, encoding="utf-8")
+
+            xml_path = temp_path / "hoi4.xml"
+            xml_path.write_bytes((ROOT / "hoi4.xml").read_bytes())
+            original_xml_path = generate_syntax.HOI4_XML
+            generate_syntax.HOI4_XML = str(xml_path)
+            try:
+                with (
+                    patch.object(
+                        sys,
+                        "argv",
+                        ["generate_syntax.py", "--hoi4", str(temp_path / "game")],
+                    ),
+                    contextlib.redirect_stdout(io.StringIO()),
+                ):
+                    generate_syntax.main()
+            finally:
+                generate_syntax.HOI4_XML = original_xml_path
+
+            self.assertNotIn(b"\r\n", xml_path.read_bytes())
+            root = ET.parse(xml_path).getroot()
+
+        def items(name):
+            for lst in root.iter("list"):
+                if lst.attrib["name"] == name:
+                    return [item.text for item in lst.iter("item")]
+            self.fail(f"no list named {name}")
+
+        # Scope TOC links are skipped, CAPITAL (scopes) wins over "capital",
+        # and a token claimed by an earlier list or case variant is dropped.
+        self.assertEqual(items("effects"), ["add_ideas", "if"])
+        self.assertEqual(len(items("triggers")), 1)
+        self.assertEqual(items("triggers")[0].lower(), "has_war")
+        self.assertEqual(items("modifiers"), ["stability_factor"])
 
     def test_write_atomic_preserves_permissions(self):
         with tempfile.TemporaryDirectory() as temp_dir:
