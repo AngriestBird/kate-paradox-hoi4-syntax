@@ -5,6 +5,7 @@ name: Validate
 on:
   push:
   pull_request:
+  workflow_call:
 
 permissions:
   contents: read
@@ -13,7 +14,10 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
 
       - name: Install xmllint
         run: |
@@ -46,5 +50,17 @@ jobs:
           fi
           echo "no duplicate tokens"
 
-      - name: Test the generator safeguards
+      - name: Test the generator, syntax definitions, and shell installer
         run: python3 -m unittest discover -s tests
+
+  windows-installer:
+    runs-on: windows-latest
+    steps:
+      # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Test the PowerShell installer
+        shell: pwsh
+        run: .\tests\test_install.ps1

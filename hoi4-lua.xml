@@ -15,15 +15,15 @@
 -->
 <language
     name="HOI4 Lua"
-    version="2"
+    version="3"
     kateversion="5.0"
     section="Scripts"
-    extensions="*.lua"
+    extensions=""
     style="lua"
     indenter="cstyle"
-    priority="5"
+    priority="0"
     casesensitive="1"
-    author="Generated for HOI4 modding"
+    author="AngriestBird"
     license="MIT"
 >
   <highlighting>
