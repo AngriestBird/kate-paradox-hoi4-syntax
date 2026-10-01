@@ -10,7 +10,7 @@
 
     Installation:
       Linux:   ~/.local/share/org.kde.syntax-highlighting/syntax/hoi4.xml
-      Windows: %USERPROFILE%\AppData\Local\org.kde.syntax-highlighting\syntax\hoi4.xml
+      Windows: %LOCALAPPDATA%\org.kde.syntax-highlighting\syntax\hoi4.xml
       macOS:   ~/Library/Application Support/org.kde.syntax-highlighting/syntax/hoi4.xml
 
     Then restart Kate. Set the language via the bottom-right dropdown or
@@ -19,7 +19,7 @@
     The effects, triggers, and modifiers lists are GENERATED from the game's
     own documentation/ exports by tools/generate_syntax.py. Do not hand-edit
     between the GEN markers; re-run the generator after a game update instead.
-    The scopes and keywords lists are hand-maintained structural vocabulary.
+    The scopes, control_flow, and keywords lists are hand-maintained.
 
     For tokens not covered here (DLC-specific or newer commands) and general
     syntax reference, see the HOI4 modding wiki: https://hoi4.paradoxwikis.com/Modding
@@ -28,12 +28,12 @@
 -->
 <language
     name="HOI4 Script"
-    version="4"
+    version="5"
     kateversion="5.0"
     section="Scripts"
-    extensions="*.txt;*.gui;*.gfx;*.asset;*.sfx;*.settings;*.mod"
+    extensions="*.gui;*.gfx;*.sfx;descriptor.mod"
     casesensitive="0"
-    author="Generated for HOI4 modding"
+    author="AngriestBird"
     license="MIT"
 >
   <highlighting>
@@ -162,7 +162,6 @@
       <item>add_state_modifier</item>
       <item>add_state_resistance_compliance_modifier</item>
       <item>add_tech_bonus</item>
-      <item>add_temporary_buff_to_units</item>
       <item>add_threat</item>
       <item>add_timed_idea</item>
       <item>add_timed_unit_leader_trait</item>
@@ -190,6 +189,7 @@
       <item>cancel_border_war</item>
       <item>cancel_purchase_contract</item>
       <item>cancel_resistance</item>
+      <item>capture_by</item>
       <item>capture_operative</item>
       <item>career_profile_step_missiolini</item>
       <item>change_tag_from</item>
@@ -319,7 +319,6 @@
       <item>harm_operative_leader</item>
       <item>hidden_effect</item>
       <item>hold_election</item>
-      <item>if</item>
       <item>inherit_technology</item>
       <item>injure_scientist_for_days</item>
       <item>kill_country_leader</item>
@@ -395,6 +394,8 @@
       <item>reduce_focus_completion_cost</item>
       <item>release</item>
       <item>release_autonomy</item>
+      <item>release_captured_generals_from</item>
+      <item>release_from_captivity</item>
       <item>release_on_controlled</item>
       <item>release_puppet</item>
       <item>release_puppet_on_controlled</item>
@@ -570,7 +571,6 @@
       <item>start_resistance</item>
       <item>state_event</item>
       <item>steal_random_tech_bonus</item>
-      <item>store_ref</item>
       <item>strategic_province_location</item>
       <item>strategic_state_location</item>
       <item>subtract_from_temp_variable</item>
@@ -595,6 +595,7 @@
       <item>unlock_mio_policy_tooltip</item>
       <item>unlock_mio_trait_tooltip</item>
       <item>unlock_national_focus</item>
+      <item>unlock_subunit</item>
       <item>unlock_tactic</item>
       <item>upgrade_intelligence_agency</item>
       <item>while_loop_effect</item>
@@ -693,6 +694,7 @@
       <item>building_count_trigger</item>
       <item>buyer</item>
       <item>can_assign_supportive_scientist_to_faction</item>
+      <item>can_be_captured</item>
       <item>can_be_country_leader</item>
       <item>can_build_railway</item>
       <item>can_construct_building</item>
@@ -712,6 +714,7 @@
       <item>casualties</item>
       <item>casualties_inflicted_by</item>
       <item>casualties_k</item>
+      <item>check_expr</item>
       <item>check_variable</item>
       <item>civilwar_target</item>
       <item>collection_contains</item>
@@ -740,6 +743,7 @@
       <item>days_since_capitulated</item>
       <item>days_since_last_strategic_bombing</item>
       <item>deal_completion</item>
+      <item>debug_math_expr</item>
       <item>decryption_progress</item>
       <item>defense_skill_level</item>
       <item>difficulty</item>
@@ -750,7 +754,6 @@
       <item>enemies_naval_strength_ratio</item>
       <item>enemies_strength_ratio</item>
       <item>energy_ratio</item>
-      <item>equipment_cost</item>
       <item>estimated_intel_max_armor</item>
       <item>estimated_intel_max_piercing</item>
       <item>exists</item>
@@ -782,7 +785,9 @@
       <item>has_air_ledger</item>
       <item>has_allowed_idea_with_traits</item>
       <item>has_annex_war_goal</item>
+      <item>has_any_captured_general</item>
       <item>has_any_custom_difficulty_setting</item>
+      <item>has_any_general_captured_by</item>
       <item>has_any_grand_doctrine</item>
       <item>has_any_license</item>
       <item>has_any_power_balance</item>
@@ -815,6 +820,7 @@
       <item>has_completed_custom_achievement</item>
       <item>has_completed_faction_goal</item>
       <item>has_completed_focus</item>
+      <item>has_completed_goal</item>
       <item>has_completed_subdoctrine</item>
       <item>has_completed_track</item>
       <item>has_contested_owner</item>
@@ -990,6 +996,7 @@
       <item>is_fighting_in_weather</item>
       <item>is_fully_controlled_by</item>
       <item>is_fully_decrypted</item>
+      <item>is_general_captured</item>
       <item>is_government_in_exile</item>
       <item>is_guaranteed_by</item>
       <item>is_high_command</item>
@@ -1001,10 +1008,12 @@
       <item>is_in_faction_with</item>
       <item>is_in_home_area</item>
       <item>is_in_peace_conference</item>
+      <item>is_in_state</item>
       <item>is_in_tech_sharing_group</item>
       <item>is_ironman</item>
       <item>is_island_state</item>
       <item>is_justifying_wargoal_against</item>
+      <item>is_leader_visible</item>
       <item>is_leading_army</item>
       <item>is_leading_army_group</item>
       <item>is_leading_army_in_province</item>
@@ -1036,6 +1045,7 @@
       <item>is_power_balance_in_range</item>
       <item>is_power_balance_side_active</item>
       <item>is_preparing_operation</item>
+      <item>is_promoted_from_unit</item>
       <item>is_puppet</item>
       <item>is_puppet_of</item>
       <item>is_researching_technology</item>
@@ -1276,6 +1286,8 @@
       <item>army_leader_start_planning_level</item>
       <item>army_morale</item>
       <item>army_morale_factor</item>
+      <item>army_non_core_attack_factor</item>
+      <item>army_non_core_defence_factor</item>
       <item>army_org</item>
       <item>army_org_factor</item>
       <item>army_org_regain</item>
@@ -1310,12 +1322,15 @@
       <item>breakthrough_factor</item>
       <item>can_guarantee_other_ideologies</item>
       <item>can_master_build_for_us</item>
+      <item>cannot_retreat_while_attacking</item>
+      <item>cannot_retreat_while_defending</item>
       <item>cannot_use_abilities</item>
       <item>carrier_capacity_penalty_reduction</item>
       <item>carrier_night_traffic</item>
       <item>carrier_sortie_hours_delay</item>
       <item>carrier_traffic</item>
       <item>cas_damage_reduction</item>
+      <item>casualty_trickleback</item>
       <item>cavalry_attack_factor</item>
       <item>cavalry_defence_factor</item>
       <item>choose_preferred_tactics_cost</item>
@@ -1329,6 +1344,7 @@
       <item>civilian_intel_factor</item>
       <item>civilian_intel_to_others</item>
       <item>coastal_bunker_effectiveness_factor</item>
+      <item>combat_entrenchment</item>
       <item>combat_width_factor</item>
       <item>command_abilities_cost_factor</item>
       <item>command_power_gain</item>
@@ -1729,6 +1745,7 @@
       <item>opinion_gain_monthly_factor</item>
       <item>opinion_gain_monthly_same_ideology</item>
       <item>opinion_gain_monthly_same_ideology_factor</item>
+      <item>org_damage_multiplier</item>
       <item>org_loss_at_low_org_factor</item>
       <item>org_loss_when_moving</item>
       <item>out_of_power_impact_factor</item>
@@ -1837,6 +1854,7 @@
       <item>state_resources_factor</item>
       <item>static_anti_air_damage_factor</item>
       <item>static_anti_air_hit_chance_factor</item>
+      <item>str_damage_multiplier</item>
       <item>strategic_bomb_visibility</item>
       <item>strike_force_movement_org_loss</item>
       <item>sub_retreat_speed</item>
@@ -1870,6 +1888,7 @@
       <item>unit_upkeep_attrition_factor</item>
       <item>war_stability_factor</item>
       <item>war_support_factor</item>
+      <item>war_support_reduction_on_damage</item>
       <item>war_support_weekly</item>
       <item>war_support_weekly_factor</item>
       <item>weekly_bombing_war_support</item>
@@ -1881,6 +1900,13 @@
       <item>wounded_chance_factor</item>
     </list>
     <!-- END-GEN modifiers -->
+
+    <list name="control_flow">
+      <item>if</item>
+      <item>else_if</item>
+      <item>else</item>
+      <item>limit</item>
+    </list>
 
     <!-- Common block/field keywords (hand-maintained) -->
     <list name="keywords">
@@ -1926,7 +1952,6 @@
       <item>value</item>
       <item>target</item>
       <item>token</item>
-      <item>limit</item>
       <item>chance</item>
       <item>days</item>
       <item>hours</item>
@@ -2078,6 +2103,8 @@
         <!-- Scope keywords -->
         <keyword attribute="Scope" context="#stay" String="scopes"/>
 
+        <keyword attribute="Control Flow" context="#stay" String="control_flow"/>
+
         <!-- Effects -->
         <keyword attribute="Effect" context="#stay" String="effects"/>
 
@@ -2113,6 +2140,7 @@
       <itemData name="Comment"      defStyleNum="dsComment"  spellChecking="false"/>
       <itemData name="String"       defStyleNum="dsString"   spellChecking="false"/>
       <itemData name="Keyword"      defStyleNum="dsKeyword"  spellChecking="false"/>
+      <itemData name="Control Flow" defStyleNum="dsControlFlow" spellChecking="false"/>
       <itemData name="Effect"       defStyleNum="dsFunction" spellChecking="false"/>
       <itemData name="Trigger"      defStyleNum="dsAttribute" spellChecking="false"/>
       <itemData name="Modifier"     defStyleNum="dsDataType" spellChecking="false"/>

@@ -12,7 +12,7 @@ Three files, one per HOI4 file type:
 
 ## What it highlights
 
-`hoi4.xml`: comments, strings, numbers, dates, booleans, and operators, plus every effect, trigger, and modifier from the game's own `documentation/` exports (around 1,800 tokens, colored by type). Also scopes, country tags, `@variables`, inline math like `@[ base + 10 ]`, and prefixes like `var:` and `event_target:`. `{ }` blocks fold.
+`hoi4.xml`: comments, strings, numbers, dates, booleans, and operators, plus every effect, trigger, and modifier from the game's own `documentation/` exports (around 1,800 tokens, colored by type). Also scopes, control flow (`if`, `else_if`, `else`, `limit`), country tags, `@variables`, inline math like `@[ base + 10 ]`, and prefixes like `var:` and `event_target:`. `{ }` blocks fold.
 
 `hoi4-localisation.xml`: the `l_english:` header, keys and version numbers, and the markup inside strings (`§Y...§!` color codes, `[loc functions]`, `$variables$`, `£icons£`, `\n`).
 
@@ -22,12 +22,14 @@ If something isn't highlighted it's probably a newer or DLC command. The wiki li
 
 ### File associations
 
-Kate picks a highlighter by file extension, and HOI4 uses some very generic ones:
+Kate picks a highlighter by filename. Starting with v1.1.0, the defaults leave generic file types alone:
 
-- `hoi4.xml` claims **every** `.txt` file (plus `.mod`, `.asset`, `.settings`, etc), not just the ones in a mod folder.
-- `hoi4-lua.xml` claims **every** `.lua` file and takes priority over Kate's own Lua highlighting. It's a superset of normal Lua, but `C...`/`N...` names in non-HOI4 Lua will get the engine color.
+- `hoi4.xml` automatically matches `.gui`, `.gfx`, `.sfx`, and `descriptor.mod`.
+- For HOI4 `.txt`, `.asset`, `.settings`, and other `.mod` files, choose **HOI4 Script** from the bottom-right dropdown or Tools > Highlighting > Scripts.
+- For HOI4 `.lua` files, choose **HOI4 Lua**. Other Lua files keep Kate's built-in highlighting.
+- Paradox-named localisation files still select **HOI4 Localisation** automatically.
 
-If that gets in the way, switch a single file back from the dropdown at the bottom-right, change the extensions under Settings > Configure Kate > Open/Save > Modes & Filetypes, or just don't install `hoi4-lua.xml`.
+Upgrading from v1.0.0 changes automatic selection for those generic extensions, not the supported syntax. If you only use Kate for HOI4, you can restore the broader associations under Settings > Configure Kate > Open/Save > Modes & Filetypes. Adding `*.txt` or `*.lua` there affects every matching file, not just your mod.
 
 ## Install
 
@@ -70,6 +72,20 @@ pass its syntax directory explicitly:
 
 Replace `org.kde.kate` or `kate` with the package name for another KDE editor.
 
+### Custom destinations
+
+Both installers accept a custom syntax directory, including paths with spaces:
+
+```sh
+./install.sh --dest "/path/to/custom syntax"
+```
+
+```powershell
+.\install.ps1 -Dest 'D:\Portable Kate\syntax'
+```
+
+Custom destinations require v1.1.0 or newer (or an install from source). The v1.0.0 installers do not support these options. On Windows, the default follows `%LOCALAPPDATA%`, including redirected AppData folders.
+
 ### From source
 
 ```sh
@@ -99,14 +115,14 @@ Copy the three `.xml` files into your syntax folder.
 **Windows**
 
 ```plaintext
-%USERPROFILE%\AppData\Local\org.kde.syntax-highlighting\syntax\
+%LOCALAPPDATA%\org.kde.syntax-highlighting\syntax\
 ```
 
 Restart Kate. If a file doesn't pick it up on its own, set the language from the dropdown at the bottom-right, or under Tools > Highlighting > Scripts.
 
 ### Uninstall
 
-Delete `hoi4.xml`, `hoi4-localisation.xml`, and `hoi4-lua.xml` from the syntax folder above (or the `--dest` folder you used) and restart Kate.
+Delete `hoi4.xml`, `hoi4-localisation.xml`, and `hoi4-lua.xml` from the syntax folder above (or the `--dest` / `-Dest` folder you used) and restart Kate.
 
 ## Updating after a patch
 
@@ -118,15 +134,16 @@ tools/generate_syntax.py --hoi4 "/path/to/Steam/steamapps/common/Hearts of Iron 
 
 On Windows: `py tools\generate_syntax.py --hoi4 "C:\Program Files (x86)\Steam\steamapps\common\Hearts of Iron IV"`.
 
-It only rewrites the generated sections and leaves the hand-written lists and rules alone. Leave off `--hoi4` and it tries the default Steam library paths on Linux, macOS, and Windows (not extra libraries or Flatpak Steam). Then re-run `install.sh`/`install.ps1` and restart Kate to pick up the new lists.
+It only rewrites the generated sections and leaves the hand-written lists and rules alone. Leave off `--hoi4` and it tries the default Steam paths on Linux, macOS, and Windows, Flatpak Steam, and extra libraries listed in each Steam root's `steamapps/libraryfolders.vdf`. It looks for an install with a `documentation/` folder. Use `--hoi4` if Steam itself is in a custom location or you want a specific install. Then re-run `install.sh`/`install.ps1` and restart Kate to pick up the new lists.
 
 ## Development
 
-- Tests: `python3 -m unittest discover -s tests` (Python 3.10+).
+- Tests: `python3 -m unittest discover -s tests` (Python 3.10+). Shell installer tests run on POSIX hosts. Run `.\tests\test_install.ps1` in PowerShell for the Windows installer; CI runs it on Windows.
 - Schema check: CI validates all three files against KDE's [`language.xsd`](https://invent.kde.org/frameworks/syntax-highlighting/-/blob/master/data/schema/language.xsd) with `xmllint` and fails on duplicate keyword tokens. See `.github/workflows/validate.yml` to run the same steps locally.
 - When you change a syntax file, bump its `version="..."` attribute. If a user has two copies of a definition, Kate loads the one with the higher version.
-- Don't hand-edit between the `BEGIN-GEN`/`END-GEN` markers in `hoi4.xml`; the generator overwrites them. Put hand-picked tokens in the `scopes` or `keywords` lists instead.
-- Releases: push a `v*` tag (e.g. `v1.1.0`) and the Release workflow builds the `.zip`/`.tar.gz` and publishes them.
+- Don't hand-edit between the `BEGIN-GEN`/`END-GEN` markers in `hoi4.xml`; the generator overwrites them. Put hand-picked tokens in the `scopes`, `control_flow`, or `keywords` lists instead.
+- Line endings: `.gitattributes` keeps shell, Python, and XML files at LF, and PowerShell files at CRLF on checkout.
+- Releases: after merging the changes, push a `v*` tag (e.g. `v1.1.0`). The Release workflow calls the same validation workflow used by PRs, including schema, duplicate-token, Python, and Windows installer checks. It only builds and publishes the `.zip`/`.tar.gz` after every check passes.
 
 ## Modding reference
 

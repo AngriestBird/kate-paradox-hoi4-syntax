@@ -22,13 +22,12 @@ import tempfile
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HOI4_XML = os.path.join(REPO, "hoi4.xml")
 
-DEFAULT_HOI4_PATHS = [
-    os.path.expanduser("~/.local/share/Steam/steamapps/common/Hearts of Iron IV"),
-    os.path.expanduser("~/.steam/steam/steamapps/common/Hearts of Iron IV"),
-    os.path.expanduser(
-        "~/Library/Application Support/Steam/steamapps/common/Hearts of Iron IV"
-    ),
-    r"C:\Program Files (x86)\Steam\steamapps\common\Hearts of Iron IV",
+DEFAULT_STEAM_PATHS = [
+    os.path.expanduser("~/.local/share/Steam"),
+    os.path.expanduser("~/.steam/steam"),
+    os.path.expanduser("~/.var/app/com.valvesoftware.Steam/.local/share/Steam"),
+    os.path.expanduser("~/Library/Application Support/Steam"),
+    r"C:\Program Files (x86)\Steam",
 ]
 
 # Markdown item links look like `* [name](#name)`; scope table-of-content
@@ -37,7 +36,29 @@ ITEM_RE = re.compile(r"^\* \[([A-Za-z0-9_]+)\]\(#(?!.*-for-scope-)")
 
 
 def find_hoi4(explicit):
-    candidates = [explicit] if explicit else DEFAULT_HOI4_PATHS
+    libraries = []
+    if not explicit:
+        for steam in DEFAULT_STEAM_PATHS:
+            libraries.append(steam)
+            manifest = os.path.join(steam, "steamapps", "libraryfolders.vdf")
+            try:
+                with open(manifest, encoding="utf-8") as fh:
+                    contents = fh.read()
+            except FileNotFoundError:
+                continue
+            except (OSError, UnicodeError) as exc:
+                print(f"Could not read {manifest}: {exc}", file=sys.stderr)
+                continue
+            for path in re.findall(r'"path"\s+"((?:\\.|[^"\\])*)"', contents):
+                libraries.append(re.sub(r'\\([\\"])', r"\1", path))
+    candidates = (
+        [explicit]
+        if explicit
+        else [
+            os.path.join(library, "steamapps", "common", "Hearts of Iron IV")
+            for library in libraries
+        ]
+    )
     for path in candidates:
         if path and os.path.isdir(os.path.join(path, "documentation")):
             return path
@@ -126,7 +147,7 @@ def main():
     # so keyword matching is unambiguous (first matching <keyword> rule wins).
     # hoi4.xml matches keywords case-insensitively, so compare lowercased.
     taken = set()
-    for hand in ("booleans", "scopes", "keywords"):
+    for hand in ("booleans", "scopes", "control_flow", "keywords"):
         taken |= {t.lower() for t in read_hand_list(xml_text, hand)}
 
     def claim(tokens):

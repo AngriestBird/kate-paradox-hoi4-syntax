@@ -7,7 +7,7 @@ set -eu
 DEST=""
 case "${1:-}" in
 --dest)
-	[ "$#" -eq 2 ] || {
+	[ "$#" -eq 2 ] && [ -n "$2" ] || {
 		printf '%s\n' "Usage: $0 [--dest DIRECTORY]" >&2
 		exit 2
 	}
