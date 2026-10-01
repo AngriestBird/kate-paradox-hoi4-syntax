@@ -2055,9 +2055,10 @@
         <!-- Date literals (1936.1.1 or 1936.1.1.12) - before plain numbers -->
         <RegExpr attribute="Number" context="#stay" String="\b[0-9]{3,4}\.[0-9]{1,2}\.[0-9]{1,2}(\.[0-9]{1,2})?\b"/>
 
-        <!-- Numbers (integers, floats, negative). The lookbehind stops digits
-             inside identifiers like focus_1 or GER_1936 lighting up. -->
-        <RegExpr attribute="Number" context="#stay" String="(?&lt;![A-Za-z0-9_])-?[0-9]+(\.[0-9]+)?"/>
+        <!-- Numbers (integers, floats, negative). The lookarounds stop digits
+             inside identifiers lighting up: focus_1, GER_1936, 1st_army, and
+             event IDs like news.12. A bare .5 still matches. -->
+        <RegExpr attribute="Number" context="#stay" String="(?&lt;![A-Za-z0-9_])(?&lt;![A-Za-z0-9_]\.)-?[0-9]+(\.[0-9]+)?(?![A-Za-z0-9_.])"/>
 
         <!-- Inline variable math: @[ base + 10 ] -->
         <RegExpr attribute="Variable" context="#stay" String="@\[[^\]]*\]"/>

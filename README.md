@@ -35,7 +35,7 @@ If that gets in the way, switch a single file back from the dropdown at the bott
 
 Grab the `.zip` or `.tar.gz` from [Releases](../../releases), unpack it, and run the installer.
 
-**Linux/MacOS**
+**Linux/macOS**
 
 ```sh
 tar -xzf hoi4-kate-syntax-*.tar.gz
@@ -90,7 +90,7 @@ Copy the three `.xml` files into your syntax folder.
 ~/.local/share/org.kde.syntax-highlighting/syntax/
 ```
 
-**MacOS**
+**macOS**
 
 ```plaintext
 ~/Library/Application Support/org.kde.syntax-highlighting/syntax/
@@ -118,7 +118,7 @@ tools/generate_syntax.py --hoi4 "/path/to/Steam/steamapps/common/Hearts of Iron 
 
 On Windows: `py tools\generate_syntax.py --hoi4 "C:\Program Files (x86)\Steam\steamapps\common\Hearts of Iron IV"`.
 
-It only rewrites the generated sections and leaves the hand-written lists and rules alone. Leave off `--hoi4` and it tries the default Steam library paths on Linux, macOS, and Windows (not extra libraries or Flatpak Steam). Then re-run `install.sh`/`install.ps1` to pick up the new lists.
+It only rewrites the generated sections and leaves the hand-written lists and rules alone. Leave off `--hoi4` and it tries the default Steam library paths on Linux, macOS, and Windows (not extra libraries or Flatpak Steam). Then re-run `install.sh`/`install.ps1` and restart Kate to pick up the new lists.
 
 ## Development
 

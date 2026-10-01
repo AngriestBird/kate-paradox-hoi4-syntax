@@ -1,6 +1,7 @@
 import contextlib
 import importlib.util
 import io
+import re
 import stat
 import sys
 import tempfile
@@ -28,6 +29,31 @@ if spec is None or spec.loader is None:
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 generate_syntax = cast(GeneratorModule, module)
+
+
+FIXTURE_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<language name="Fixture">
+  <highlighting>
+    <list name="booleans"><item>yes</item></list>
+    <list name="scopes">
+      <item>CAPITAL</item>
+    </list>
+    <!-- BEGIN-GEN effects (generated) -->
+    <list name="effects">
+    </list>
+    <!-- END-GEN effects -->
+    <!-- BEGIN-GEN triggers (generated) -->
+    <list name="triggers">
+    </list>
+    <!-- END-GEN triggers -->
+    <!-- BEGIN-GEN modifiers (generated) -->
+    <list name="modifiers">
+    </list>
+    <!-- END-GEN modifiers -->
+    <list name="keywords"><item>focus</item></list>
+  </highlighting>
+</language>
+"""
 
 
 class GeneratorTests(unittest.TestCase):
@@ -83,8 +109,10 @@ class GeneratorTests(unittest.TestCase):
             for name, text in docs.items():
                 (documentation / name).write_text(text, encoding="utf-8")
 
+            # A minimal stand-in for hoi4.xml, so the test doesn't depend on
+            # what the real hand-maintained lists happen to contain.
             xml_path = temp_path / "hoi4.xml"
-            xml_path.write_bytes((ROOT / "hoi4.xml").read_bytes())
+            xml_path.write_text(FIXTURE_XML, encoding="utf-8")
             original_xml_path = generate_syntax.HOI4_XML
             generate_syntax.HOI4_XML = str(xml_path)
             try:
@@ -100,7 +128,6 @@ class GeneratorTests(unittest.TestCase):
             finally:
                 generate_syntax.HOI4_XML = original_xml_path
 
-            self.assertNotIn(b"\r\n", xml_path.read_bytes())
             root = ET.parse(xml_path).getroot()
 
         def items(name):
@@ -111,10 +138,25 @@ class GeneratorTests(unittest.TestCase):
 
         # Scope TOC links are skipped, CAPITAL (scopes) wins over "capital",
         # and a token claimed by an earlier list or case variant is dropped.
+        self.assertEqual(items("scopes"), ["CAPITAL"])
         self.assertEqual(items("effects"), ["add_ideas", "if"])
         self.assertEqual(len(items("triggers")), 1)
         self.assertEqual(items("triggers")[0].lower(), "has_war")
         self.assertEqual(items("modifiers"), ["stability_factor"])
+
+    def test_write_atomic_writes_lf_on_every_platform(self):
+        # On Linux text mode already writes LF, so check the argument that
+        # keeps Windows from translating to CRLF rather than the bytes.
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "hoi4.xml"
+            path.write_text("old", encoding="utf-8")
+            with patch.object(
+                generate_syntax.os, "fdopen", wraps=generate_syntax.os.fdopen
+            ) as fdopen:
+                generate_syntax.write_atomic(str(path), "a\nb\n")
+
+            self.assertEqual(fdopen.call_args.kwargs.get("newline"), "\n")
+            self.assertEqual(path.read_bytes(), b"a\nb\n")
 
     def test_write_atomic_preserves_permissions(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -136,6 +178,33 @@ class SyntaxMetadataTests(unittest.TestCase):
     def test_localisation_priority_beats_yaml(self):
         language = self.language("hoi4-localisation.xml")
         self.assertGreaterEqual(int(language.attrib["priority"]), 10)
+
+    def test_number_rule_skips_digits_in_identifiers(self):
+        language = self.language("hoi4.xml")
+        pattern = next(
+            rule.attrib["String"]
+            for rule in language.iter("RegExpr")
+            if rule.attrib["attribute"] == "Number" and "\\b" not in rule.attrib["String"]
+        )
+        number = re.compile(pattern)
+
+        def numbers(line):
+            # Mimic KSyntaxHighlighting: try the rule at each offset in turn.
+            found, pos = [], 0
+            while pos < len(line):
+                match = number.match(line, pos)
+                if match and match.end() > pos:
+                    found.append(match.group())
+                    pos = match.end()
+                else:
+                    pos += 1
+            return found
+
+        self.assertEqual(numbers("x = -5"), ["-5"])
+        self.assertEqual(numbers("x=0.25"), ["0.25"])
+        self.assertEqual(numbers("factor = .5"), ["5"])
+        for line in ("focus_1 = {", "GER_1936", "1st_army", "id = news.12", "12ab"):
+            self.assertEqual(numbers(line), [], line)
 
     def test_lua_uses_cstyle_indenter(self):
         language = self.language("hoi4-lua.xml")
