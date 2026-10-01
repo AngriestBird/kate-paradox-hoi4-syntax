@@ -39,7 +39,10 @@ try {
     $rejected = $false
     try {
         & $installer -Dest ''
-    } catch [System.Management.Automation.ParameterBindingValidationException] {
+    } catch [System.Management.Automation.ParameterBindingException] {
+        if ($_.FullyQualifiedErrorId -ne 'ParameterArgumentValidationError,install.ps1') {
+            throw
+        }
         $rejected = $true
     }
     if (-not $rejected) {
