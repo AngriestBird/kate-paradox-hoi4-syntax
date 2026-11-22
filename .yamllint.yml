@@ -1,0 +1,7 @@
+extends: default
+
+# SHA-pinned actions plus a trailing "# vX.Y.Z" comment need more than 80
+# columns. Dependabot only rewrites that comment when it sits on the same line.
+rules:
+  line-length:
+    max: 100
